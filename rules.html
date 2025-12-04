@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moeez Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade { animation: fadeIn 0.6s ease-out; }
+        .animate-slide { animation: slideUp 0.8s ease-out; }
+        .animate-scale { animation: scaleIn 0.5s ease-out; }
+    </style>
+</head>
+<body class="bg-black text-white">
+    <div id="app"></div>
+
+    <script>
+        // Change this to your WhatsApp number
+        const WHATSAPP_NUMBER = '1234567890';
+
+        let currentPage = 'landing';
+        let currentUser = null;
+        let showPassword = false;
+
+        let users = [
+            { id: 1, name: 'Owner', email: 'owner@store.com', password: 'owner123', role: 'owner' }
+        ];
+
+        let products = [
+            { id: 1, name: 'Wireless Headphones', price: 59.99, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', category: 'Electronics' },
+            { id: 2, name: 'Smart Watch', price: 199.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', category: 'Electronics' },
+            { id: 3, name: 'Laptop Backpack', price: 49.99, image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400', category: 'Accessories' }
+        ];
+
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (currentPage === 'landing') {
+                app.innerHTML = renderLanding();
+            } else if (currentPage === 'login') {
+                app.innerHTML = renderLogin();
+            } else if (currentPage === 'signup') {
+                app.innerHTML = renderSignup();
+            } else if (currentPage === 'shop') {
+                app.innerHTML = renderShop();
+            } else if (currentPage === 'dashboard') {
+                app.innerHTML = renderDashboard();
+            }
+        }
+
+        function renderLanding() {
+            return `
+                <div class="animate-fade">
+                    <nav class="bg-white text-black p-4 shadow-lg">
+                        <div class="max-w-7xl mx-auto flex justify-between items-center">
+                            <h1 class="text-2xl font-bold">Moeez Store</h1>
+                            <div class="space-x-4">
+                                <button onclick="goToPage('login')" class="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition">Login</button>
+                                <button onclick="goToPage('signup')" class="px-6 py-2 border-2 border-black rounded-lg hover:bg-black hover:text-white transition">Sign Up</button>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    <div class="max-w-7xl mx-auto px-4 py-20 text-center">
+                        <h2 class="text-6xl font-bold mb-6 animate-slide">Welcome to Moeez Store</h2>
+                        <p class="text-xl text-gray-400 mb-8 animate-slide">Your Premium Shopping Destination</p>
+                        <button onclick="goToPage('shop')" class="px-8 py-4 bg-white text-black text-lg rounded-lg hover:bg-gray-200 transition animate-slide">
+                            Browse Products
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLogin() {
+            return `
+                <div class="min-h-screen flex items-center justify-center animate-fade">
+                    <div class="bg-white text-black p-8 rounded-2xl shadow-2xl w-full max-w-md animate-scale">
+                        <h2 class="text-3xl font-bold mb-6 text-center">Login</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block mb-2">Email</label>
+                                <input type="email" id="loginEmail" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none transition" />
+                            </div>
+                            <div>
+                                <label class="block mb-2">Password</label>
+                                <input type="password" id="loginPassword" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none transition" />
+                            </div>
+                            <button onclick="handleLogin()" class="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition">Login</button>
+                        </div>
+                        <p class="text-center mt-4">Don't have an account? <button onclick="goToPage('signup')" class="text-blue-600 hover:underline">Sign Up</button></p>
+                        <button onclick="goToPage('landing')" class="w-full mt-4 text-gray-600 hover:text-black">← Back</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSignup() {
+            return `
+                <div class="min-h-screen flex items-center justify-center animate-fade">
+                    <div class="bg-white text-black p-8 rounded-2xl shadow-2xl w-full max-w-md animate-scale">
+                        <h2 class="text-3xl font-bold mb-6 text-center">Sign Up</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block mb-2">Name</label>
+                                <input type="text" id="signupName" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none transition" />
+                            </div>
+                            <div>
+                                <label class="block mb-2">Email</label>
+                                <input type="email" id="signupEmail" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none transition" />
+                            </div>
+                            <div>
+                                <label class="block mb-2">Password</label>
+                                <input type="password" id="signupPassword" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none transition" />
+                            </div>
+                            <button onclick="handleSignup()" class="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition">Create Account</button>
+                        </div>
+                        <p class="text-center mt-4">Already have an account? <button onclick="goToPage('login')" class="text-blue-600 hover:underline">Login</button></p>
+                        <button onclick="goToPage('landing')" class="w-full mt-4 text-gray-600 hover:text-black">← Back</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderShop() {
+            const userSection = currentUser ? `
+                <span class="hidden sm:inline">Hello, ${currentUser.name}</span>
+                ${(currentUser.role === 'owner' || currentUser.role === 'staff') ? 
+                    '<button onclick="goToPage(\'dashboard\')" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition">Dashboard</button>' : ''}
+                <button onclick="handleLogout()" class="px-4 py-2 border-2 border-black rounded-lg hover:bg-black hover:text-white transition">Logout</button>
+            ` : '<button onclick="goToPage(\'login\')" class="px-4 py-2 bg-black text-white rounded-lg">Login</button>';
+
+            return `
+                <div class="min-h-screen">
+                    <nav class="bg-white text-black p-4 shadow-lg sticky top-0 z-50">
+                        <div class="max-w-7xl mx-auto flex justify-between items-center">
+                            <h1 class="text-2xl font-bold">Moeez Store</h1>
+                            <div class="flex items-center space-x-4">
+                                ${userSection}
+                            </div>
+                        </div>
+                    </nav>
+
+                    <div class="max-w-7xl mx-auto p-4 sm:p-6">
+                        <h2 class="text-4xl font-bold mb-8">Featured Products</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${products.map(product => `
+                                <div class="bg-white text-black rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105">
+                                    <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover" />
+                                    <div class="p-6">
+                                        <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+                                        <p class="text-gray-600 mb-2">${product.category}</p>
+                                        <p class="text-2xl font-bold mb-4">$${product.price}</p>
+                                        <button onclick="buyOnWhatsApp('${product.name}', ${product.price})" class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition">
+                                            🛒 Buy on WhatsApp
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            if (!currentUser || (currentUser.role !== 'owner' && currentUser.role !== 'staff')) {
+                return '<div class="min-h-screen flex items-center justify-center">Access Denied</div>';
+            }
+
+            const staffCount = users.filter(u => u.role === 'staff').length;
+            
+            return `
+                <div class="min-h-screen">
+                    <nav class="bg-white text-black p-4 shadow-lg">
+                        <div class="max-w-7xl mx-auto flex justify-between items-center">
+                            <h1 class="text-2xl font-bold">Control Panel</h1>
+                            <div class="flex items-center space-x-4">
+                                <button onclick="goToPage('shop')" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition">Shop</button>
+                                <button onclick="handleLogout()" class="px-4 py-2 border-2 border-black rounded-lg hover:bg-black hover:text-white transition">Logout</button>
+                            </div>
+                        </div>
+                    </nav>
+
+                    <div class="max-w-7xl mx-auto p-4 sm:p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                            <div class="bg-white text-black p-6 rounded-xl shadow-lg">
+                                <div class="text-4xl mb-4">📦</div>
+                                <h3 class="text-2xl font-bold">${products.length}</h3>
+                                <p class="text-gray-600">Total Products</p>
+                            </div>
+                            <div class="bg-white text-black p-6 rounded-xl shadow-lg">
+                                <div class="text-4xl mb-4">👥</div>
+                                <h3 class="text-2xl font-bold">${users.length}</h3>
+                                <p class="text-gray-600">Total Users</p>
+                            </div>
+                            <div class="bg-white text-black p-6 rounded-xl shadow-lg">
+                                <div class="text-4xl mb-4">⚙️</div>
+                                <h3 class="text-2xl font-bold">${staffCount}</h3>
+                                <p class="text-gray-600">Staff Members</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-white text-black p-6 rounded-xl shadow-lg">
+                                <h3 class="text-2xl font-bold mb-4">Add New Product</h3>
+                                <div class="space-y-4">
+                                    <input type="text" id="productName" placeholder="Product Name" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none" />
+                                    <input type="number" id="productPrice" step="0.01" placeholder="Price" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none" />
+                                    <input type="text" id="productCategory" placeholder="Category" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none" />
+                                    <input type="url" id="productImage" placeholder="Image URL" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-black outline-none" />
+                                    <button onclick="addProduct()" class="w-full bg-black text-white p-3 rounded-lg hover:bg-gray-800 transition">
+                                        📤 Add Product
+                                    </button>
+                                </div>
+                            </div>
+
+                            ${currentUser.role === 'owner' ? `
+                                <div class="bg-white text-black p-6 rounded-xl shadow-lg">
+                                    <h3 class="text-2xl font-bold mb-4">User Management</h3>
+                                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                                        ${users.filter(u => u.role !== 'owner').map(u => `
+                                            <div class="p-4 border-2 border-gray-200 rounded-lg">
+                                                <p class="font-bold">${u.name}</p>
+                                                <p class="text-sm text-gray-600">${u.email}</p>
+                                                <div class="mt-2">
+                                                    <button onclick="toggleStaff(${u.id})" class="${u.role === 'staff' ? 'bg-red-500' : 'bg-green-500'} text-white px-4 py-2 rounded-lg text-sm">
+                                                        ${u.role === 'staff' ? 'Remove Staff' : 'Make Staff'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            render();
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUser = user;
+                currentPage = user.role === 'customer' ? 'shop' : 'dashboard';
+                render();
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        function handleSignup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            if (users.find(u => u.email === email)) {
+                alert('Email already exists!');
+                return;
+            }
+            
+            const newUser = { id: users.length + 1, name, email, password, role: 'customer' };
+            users.push(newUser);
+            currentUser = newUser;
+            currentPage = 'shop';
+            render();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            currentPage = 'landing';
+            render();
+        }
+
+        function buyOnWhatsApp(name, price) {
+            const message = `Hi! I want to buy ${name} for $${price}`;
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function addProduct() {
+            const name = document.getElementById('productName').value;
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const category = document.getElementById('productCategory').value;
+            const image = document.getElementById('productImage').value;
+            
+            if (!name || !price || !image) {
+                alert('Please fill all fields!');
+                return;
+            }
+            
+            products.push({ id: products.length + 1, name, price, category, image });
+            alert('Product added successfully!');
+            render();
+        }
+
+        function toggleStaff(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                user.role = user.role === 'staff' ? 'customer' : 'staff';
+                alert('User role updated!');
+                render();
+            }
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
